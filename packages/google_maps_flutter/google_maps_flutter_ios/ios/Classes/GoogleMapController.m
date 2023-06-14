@@ -6,6 +6,8 @@
 #import "FLTGoogleMapJSONConversions.h"
 #import "FLTGoogleMapTileOverlayController.h"
 
+static GMSMapView *sharedMapView = nil;
+
 #pragma mark - Conversion of JSON-like values sent via platform channels. Forward declarations.
 
 @interface FLTGoogleMapFactory ()
@@ -78,7 +80,16 @@
                     registrar:(NSObject<FlutterPluginRegistrar> *)registrar {
   GMSCameraPosition *camera =
       [FLTGoogleMapJSONConversions cameraPostionFromDictionary:args[@"initialCameraPosition"]];
-  GMSMapView *mapView = [GMSMapView mapWithFrame:frame camera:camera];
+
+  // GMSMapView *mapView = [GMSMapView mapWithFrame:frame camera:camera];
+  if (!sharedMapView) {
+    sharedMapView = [GMSMapView mapWithFrame:frame camera:camera];
+  } else {
+    [sharedMapView clear];
+    [sharedMapView setFrame:frame];
+    [sharedMapView setCamera:camera];
+  }
+  GMSMapView *mapView = sharedMapView;
   return [self initWithMapView:mapView viewIdentifier:viewId arguments:args registrar:registrar];
 }
 
